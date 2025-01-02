@@ -7,14 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PasswordActivity extends AppCompatActivity {
+    CardView keyCard;
     EditText keyEditText;
     EditText emailEditText;
     EditText passwordEditText;
@@ -36,6 +37,7 @@ public class PasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acivity_password);
 
+        keyCard = findViewById(R.id.key_card);
         keyEditText = findViewById(R.id.password_edit_key);
         emailEditText = findViewById(R.id.password_edit_email);
         passwordEditText = findViewById(R.id.password_edit_password);
@@ -60,17 +62,32 @@ public class PasswordActivity extends AppCompatActivity {
         }
 
         saveButton.setOnClickListener(view -> {
-            if (pos == -1 && !getPasswordKeys(passwordList).contains(keyEditText.getText().toString())) {
-                PasswordItem passwordItem = new PasswordItem(
-                        keyEditText.getText().toString(),
-                        emailEditText.getText().toString(),
-                        passwordEditText.getText().toString(),
-                        notesEditText.getText().toString()
-                );
-                passwordList.add(passwordItem);
-                PrefsManager.savePasswordList(getApplicationContext(), passwordList);
-                startActivity(new Intent(this, MainActivity.class));
-            } else if (pos != -1) {
+            if (pos == -1) {
+                if (!getPasswordKeys(passwordList).contains(keyEditText.getText().toString())) {
+                    PasswordItem passwordItem = new PasswordItem(
+                            keyEditText.getText().toString(),
+                            emailEditText.getText().toString(),
+                            passwordEditText.getText().toString(),
+                            notesEditText.getText().toString()
+                    );
+                    passwordList.add(passwordItem);
+                    PrefsManager.savePasswordList(getApplicationContext(), passwordList);
+                    startActivity(new Intent(this, MainActivity.class));
+                } else {
+//                    todo - normal animation
+                    keyCard.animate().setDuration(250);
+                    keyCard.animate().alphaBy(1);
+                    keyCard.animate().alpha(.5f);
+                    keyCard.animate().withEndAction(() -> {
+                        keyCard.animate().setDuration(250);
+                        keyCard.animate().alphaBy(.5f);
+                        keyCard.animate().alpha(1);
+                        keyCard.animate().start();
+                    });
+                    keyCard.animate().start();
+
+                }
+            } else {
                 PasswordItem passwordItem = passwordList.get(pos);
                 passwordItem.setEmail(emailEditText.getText().toString());
                 passwordItem.setPassword(passwordEditText.getText().toString());
